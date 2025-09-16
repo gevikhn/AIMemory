@@ -1,0 +1,87 @@
+# AIMemory Configuration File
+# This file contains default configuration settings for the AI Memory System
+
+# Logging configuration
+log_level: INFO
+log_file: logs/memory.log
+
+# Database configuration
+database:
+  # Storage engine settings
+  wal_sync: true
+  checkpoint_interval: 300
+  max_memory_mb: 1024
+
+# Search Index configuration
+search:
+  # BM25 parameters
+  bm25_k1: 1.2
+  bm25_b: 0.75
+
+  # Index settings
+  merge_factor: 10
+  max_buffered_docs: 1000
+
+# Graph Store configuration
+graph:
+  # Adjacency settings
+  max_degree_per_type: 256
+  similar_to_max_degree: 64
+
+  # PPR settings
+  ppr_alpha: 0.15
+  ppr_iterations: 50
+
+# Vector Index configuration (optional)
+vector:
+  enabled: false
+  dimension: 768
+  hnsw_m: 16
+  hnsw_ef_construction: 200
+  hnsw_ef_search: 50
+
+# Recall Pipeline configuration
+recall:
+  # Multi-stage retrieval settings
+  bm25_weight: 0.4
+  vector_weight: 0.3
+  graph_weight: 0.3
+
+  # Budget and limits
+  default_token_budget: 2000
+  max_k_hop: 2
+  topk_candidates: 200
+
+# Memory lifecycle configuration
+memory:
+  # Transition thresholds (in days)
+  short_to_medium: 7
+  medium_to_long: 30
+
+  # Decay parameters
+  episode_tau: 14
+  fact_tau: 90
+  concept_tau: 180
+
+  # Consolidation settings
+  consolidation_interval_hours: 24
+  min_cluster_size: 3
+  similarity_threshold: 0.75
+
+# Privacy and security
+privacy:
+  pii_detection: true
+  tenant_isolation: true
+  encryption_at_rest: false
+
+# Performance settings
+performance:
+  max_threads: 4
+  cache_size_mb: 256
+  io_buffer_size_kb: 64
+
+# Development settings (remove in production)
+dev:
+  trace_enabled: false
+  debug_output: false
+  synthetic_data: false
