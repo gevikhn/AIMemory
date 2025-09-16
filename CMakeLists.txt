@@ -21,7 +21,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Compiler flags
 if(MSVC)
-    add_compile_options(/W4 /permissive-)
+    add_compile_options(/utf-8 /W4 /permissive-  /Zc:wchar_t- /D_UNICODE /DUNICODE)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 else()
     add_compile_options(-Wall -Wextra -Wpedantic)
