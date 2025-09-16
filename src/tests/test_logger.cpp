@@ -11,6 +11,9 @@ protected:
     }
 
     void TearDown() override {
+        // 关闭logger文件流以释放文件句柄
+        logger_->closeFile();
+
         if (std::filesystem::exists(log_file_)) {
             std::filesystem::remove(log_file_);
         }
@@ -48,6 +51,9 @@ TEST_F(LoggerTest, LogLevelFiltering) {
     logger_->debug("Debug message");  // 应该被过滤
     logger_->warn("Warning message"); // 应该被记录
 
+    // 确保文件写入完成
+    logger_->flush();
+
     std::ifstream file(log_file_);
     std::string line;
     std::vector<std::string> lines;
@@ -58,8 +64,10 @@ TEST_F(LoggerTest, LogLevelFiltering) {
 
     // 应该只有一行（warning消息）
     EXPECT_EQ(lines.size(), 1);
-    EXPECT_TRUE(lines[0].find("Warning message") != std::string::npos);
-    EXPECT_TRUE(lines[0].find("Debug message") == std::string::npos);
+    if (lines.size() > 0) {
+        EXPECT_TRUE(lines[0].find("Warning message") != std::string::npos);
+        EXPECT_TRUE(lines[0].find("Debug message") == std::string::npos);
+    }
 }
 
 TEST_F(LoggerTest, AllLogLevels) {
@@ -72,6 +80,9 @@ TEST_F(LoggerTest, AllLogLevels) {
     logger_->warn("Warn message");
     logger_->error("Error message");
     logger_->fatal("Fatal message");
+
+    // 确保文件写入完成
+    logger_->flush();
 
     std::ifstream file(log_file_);
     std::string content((std::istreambuf_iterator<char>(file)),

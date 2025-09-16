@@ -1,9 +1,11 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <fstream>
 #include <memory>
 #include <mutex>
+#include <format>
 
 namespace memory::core {
 
@@ -21,15 +23,32 @@ public:
     static Logger& getInstance();
 
     void setLevel(LogLevel level);
-    void setOutput(const std::string& filename);
+    void setOutput(std::string_view filename);
+    void closeFile();
+    void flush();
 
-    void log(LogLevel level, const std::string& message);
-    void trace(const std::string& message);
-    void debug(const std::string& message);
-    void info(const std::string& message);
-    void warn(const std::string& message);
-    void error(const std::string& message);
-    void fatal(const std::string& message);
+    void log(LogLevel level, std::string_view message);
+    void trace(std::string_view message);
+    void debug(std::string_view message);
+    void info(std::string_view message);
+    void warn(std::string_view message);
+    void error(std::string_view message);
+    void fatal(std::string_view message);
+
+    template<typename... Args>
+    void log(LogLevel level, std::string_view format_str, Args&&... args);
+    template<typename... Args>
+    void trace(std::string_view format_str, Args&&... args);
+    template<typename... Args>
+    void debug(std::string_view format_str, Args&&... args);
+    template<typename... Args>
+    void info(std::string_view format_str, Args&&... args);
+    template<typename... Args>
+    void warn(std::string_view format_str, Args&&... args);
+    template<typename... Args>
+    void error(std::string_view format_str, Args&&... args);
+    template<typename... Args>
+    void fatal(std::string_view format_str, Args&&... args);
 
 private:
     Logger() = default;
@@ -42,11 +61,47 @@ private:
 };
 
 // 便利宏
-#define LOG_TRACE(msg) memory::core::Logger::getInstance().trace(msg)
-#define LOG_DEBUG(msg) memory::core::Logger::getInstance().debug(msg)
-#define LOG_INFO(msg) memory::core::Logger::getInstance().info(msg)
-#define LOG_WARN(msg) memory::core::Logger::getInstance().warn(msg)
-#define LOG_ERROR(msg) memory::core::Logger::getInstance().error(msg)
-#define LOG_FATAL(msg) memory::core::Logger::getInstance().fatal(msg)
+#define LOG_TRACE(msg, ...) memory::core::Logger::getInstance().trace(msg, ##__VA_ARGS__)
+#define LOG_DEBUG(msg, ...) memory::core::Logger::getInstance().debug(msg, ##__VA_ARGS__)
+#define LOG_INFO(msg, ...) memory::core::Logger::getInstance().info(msg, ##__VA_ARGS__)
+#define LOG_WARN(msg, ...) memory::core::Logger::getInstance().warn(msg, ##__VA_ARGS__)
+#define LOG_ERROR(msg, ...) memory::core::Logger::getInstance().error(msg, ##__VA_ARGS__)
+#define LOG_FATAL(msg, ...) memory::core::Logger::getInstance().fatal(msg, ##__VA_ARGS__)
+
+// Template implementations
+template<typename... Args>
+void Logger::log(LogLevel level, std::string_view format_str, Args&&... args) {
+    log(level, std::format(format_str, std::forward<Args>(args)...));
+}
+
+template<typename... Args>
+void Logger::trace(std::string_view format_str, Args&&... args) {
+    log(LogLevel::TRACE, format_str, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Logger::debug(std::string_view format_str, Args&&... args) {
+    log(LogLevel::DEBUG, format_str, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Logger::info(std::string_view format_str, Args&&... args) {
+    log(LogLevel::INFO, format_str, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Logger::warn(std::string_view format_str, Args&&... args) {
+    log(LogLevel::WARN, format_str, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Logger::error(std::string_view format_str, Args&&... args) {
+    log(LogLevel::ERROR, format_str, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void Logger::fatal(std::string_view format_str, Args&&... args) {
+    log(LogLevel::FATAL, format_str, std::forward<Args>(args)...);
+}
 
 } // namespace memory::core
